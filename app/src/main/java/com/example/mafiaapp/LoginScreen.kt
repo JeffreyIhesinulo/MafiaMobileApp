@@ -4,15 +4,22 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -29,22 +36,38 @@ fun LoginScreen(
     onLoginClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     val repository = remember { AuthRepository() }
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    val performLogin = {
+        isLoading = true
+        errorMessage = ""
+        scope.launch {
+            val result = repository.login(email, password)
+            if (result.isSuccess) onLoginClick()
+            else errorMessage = "Invalid email or password"
+            isLoading = false
+        }
+
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .imePadding()
             .background(DarkBackground)
             .padding(24.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(60.dp))
@@ -92,7 +115,12 @@ fun LoginScreen(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White
                         ),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        )
+
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -120,9 +148,16 @@ fun LoginScreen(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White
                         ),
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {performLogin()}
+                        )
 
+                    )
                     Spacer(modifier = Modifier.height(24.dp))
 
                     if (errorMessage.isNotEmpty()) {
@@ -130,16 +165,7 @@ fun LoginScreen(
                     }
 
                     Button(
-                        onClick = {
-                            isLoading = true
-                            errorMessage = ""
-                            scope.launch {
-                                val result = repository.login(email, password)
-                                if (result.isSuccess) onLoginClick()
-                                else errorMessage = "Invalid email or password"
-                                isLoading = false
-                            }
-                        },
+                        onClick = { performLogin() },
                         modifier = Modifier.fillMaxWidth().height(52.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000)),
                         shape = RoundedCornerShape(12.dp)
@@ -162,8 +188,9 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
             Text("© 2024 MAFIA RATING TRACKER • PRIVATE COMMUNITY", color = Color.DarkGray, fontSize = 11.sp)
+
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

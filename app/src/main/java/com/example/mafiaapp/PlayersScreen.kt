@@ -24,7 +24,7 @@ val RedColor = Color(0xFFE53935)
 val GoldColor = Color(0xFFFFD700)
 
 data class Player(
-    val name: String,
+    val username: String,
     val rank: String,
     val rankColor: Color,
     val mmr: Int,
@@ -39,6 +39,7 @@ fun getRankColor(rank: String): Color {
         "MASTER" -> Color(0xFF9C27B0)
         "ELITE" -> Color(0xFFE53935)
         "VETERAN" -> Color(0xFF2196F3)
+        "IRON" -> Color(0xFFE79A30)
         else -> Color.Gray
     }
 }
@@ -61,7 +62,7 @@ fun PlayersScreen() {
         "Admins" -> players.filter { it.isAdmin }
         "Top Rated" -> players.sortedByDescending { it.mmr }
         else -> players
-    }.filter { it.name.contains(searchText, ignoreCase = true) }
+    }.filter { it.username.contains(searchText, ignoreCase = true) }
 
     Column(modifier = Modifier.fillMaxSize().background(NavBackground)) {
         Row(
@@ -130,8 +131,6 @@ fun PlayersScreen() {
                 items(filteredPlayers) { player -> PlayerCard(player = player) }
             }
         }
-
-        BottomNavBar()
     }
 }
 
@@ -140,12 +139,12 @@ fun PlayerCard(player: Player) {
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = CardBg), shape = RoundedCornerShape(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(48.dp).background(PurpleMain, CircleShape), contentAlignment = Alignment.Center) {
-                Text(player.name.first().toString(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(player.username.first().toString(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(player.name, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(player.username, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(6.dp))
                     Box(modifier = Modifier.background(player.rankColor.copy(alpha = 0.2f), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
                         Text(player.rank, color = player.rankColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
@@ -163,18 +162,3 @@ fun PlayerCard(player: Player) {
     }
 }
 
-@Composable
-fun BottomNavBar() {
-    val items = listOf("🎮" to "Games", "👥" to "Players", "➕" to "Create", "🔔" to "Activity", "⚙️" to "Settings")
-    var selected by remember { mutableStateOf("Players") }
-
-    Row(modifier = Modifier.fillMaxWidth().background(CardBg).padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceAround) {
-        items.forEach { (icon, label) ->
-            val isSelected = label == selected
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(4.dp)) {
-                Text(icon, fontSize = 20.sp)
-                Text(label, color = if (isSelected) PurpleMain else Color.Gray, fontSize = 10.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal)
-            }
-        }
-    }
-}

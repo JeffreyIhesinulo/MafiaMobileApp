@@ -6,15 +6,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -26,22 +31,42 @@ fun RegisterScreen(
     onRegisterSuccess: () -> Unit = {},
     onBackToLogin: () -> Unit = {}
 ) {
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var username by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     val repository = remember { AuthRepository() }
     val scope = rememberCoroutineScope()
+    val performRegistration = {
+        when {
+            username.isEmpty() -> errorMessage = "Enter username"
+            email.isEmpty() -> errorMessage = "Enter email"
+            password.isEmpty() -> errorMessage = "Enter password"
+            password != confirmPassword -> errorMessage = "Passwords do not match"
+            password.length < 6 -> errorMessage = "Password must be at least 6 characters"
+            else -> {
+                isLoading = true
+                errorMessage = ""
+                scope.launch {
+                    val result = repository.register(email, password, username)
+                    if (result.isSuccess) onRegisterSuccess()
+                    else errorMessage = result.exceptionOrNull()?.message ?: "Registration failed"
+                    isLoading = false
+                }
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(DarkBackground)
             .padding(24.dp)
+            .imePadding()
     ) {
         Column(
             modifier = Modifier
@@ -54,7 +79,9 @@ fun RegisterScreen(
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo",
-                modifier = Modifier.size(100.dp).clip(RoundedCornerShape(16.dp))
+                modifier = Modifier
+                    .size(126.dp)
+                    .clip(RoundedCornerShape(16.dp))
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -79,7 +106,11 @@ fun RegisterScreen(
                         placeholder = { Text("Don_Corleone", color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.White, unfocusedBorderColor = Color.DarkGray, focusedTextColor = Color.White, unfocusedTextColor = Color.White),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next,
+                            keyboardType = KeyboardType.Text
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -90,7 +121,11 @@ fun RegisterScreen(
                         placeholder = { Text("name@example.com", color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.White, unfocusedBorderColor = Color.DarkGray, focusedTextColor = Color.White, unfocusedTextColor = Color.White),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next,
+                            keyboardType = KeyboardType.Email
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -102,7 +137,11 @@ fun RegisterScreen(
                         trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Text(if (passwordVisible) "🙈" else "👁️") } },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.White, unfocusedBorderColor = Color.DarkGray, focusedTextColor = Color.White, unfocusedTextColor = Color.White),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next,
+                            keyboardType = KeyboardType.Password
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -114,7 +153,14 @@ fun RegisterScreen(
                         trailingIcon = { IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) { Text(if (confirmPasswordVisible) "🙈" else "👁️") } },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.White, unfocusedBorderColor = Color.DarkGray, focusedTextColor = Color.White, unfocusedTextColor = Color.White),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                            keyboardType = KeyboardType.Password
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {performRegistration()}
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -124,25 +170,7 @@ fun RegisterScreen(
                     }
 
                     Button(
-                        onClick = {
-                            when {
-                                username.isEmpty() -> errorMessage = "Enter username"
-                                email.isEmpty() -> errorMessage = "Enter email"
-                                password.isEmpty() -> errorMessage = "Enter password"
-                                password != confirmPassword -> errorMessage = "Passwords do not match"
-                                password.length < 6 -> errorMessage = "Password must be at least 6 characters"
-                                else -> {
-                                    isLoading = true
-                                    errorMessage = ""
-                                    scope.launch {
-                                        val result = repository.register(email, password, username)
-                                        if (result.isSuccess) onRegisterSuccess()
-                                        else errorMessage = result.exceptionOrNull()?.message ?: "Registration failed"
-                                        isLoading = false
-                                    }
-                                }
-                            }
-                        },
+                        onClick = {performRegistration()},
                         modifier = Modifier.fillMaxWidth().height(52.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000)),
                         shape = RoundedCornerShape(12.dp)

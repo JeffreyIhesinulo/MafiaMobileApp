@@ -12,12 +12,12 @@ class PlayerRepository {
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getPlayers(): List<Player> {
         return try {
-            val snapshot = db.collection("players").get().await()
+            val snapshot = db.collection("users").get().await()
             snapshot.documents.map { doc ->
                 Player(
-                    name = doc.getString("name") ?: "",
+                    username = doc.getString("username") ?: "",
                     rank = doc.getString("rank") ?: "",
-                    rankColor = getRankColor(doc.getString("rank") ?: ""),
+                    rankColor = getRankColor(doc.getString("rank") ?: "0"),
                     mmr = (doc.getLong("mmr") ?: 0).toInt(),
                     mmrChange = (doc.getLong("mmrChange") ?: 0).toInt(),
                     games = (doc.getLong("games") ?: 0).toInt(),
