@@ -36,11 +36,11 @@ fun AppNavigation() {
         containerColor = NavBackground,
         bottomBar = {
             val items = listOf(
-                "🎮" to "Games",
-                "👥" to "Players",
-                "➕" to "Create",
-                "🔔" to "Activity",
-                "⚙️" to "Profile"
+                "🎮" to "games",
+                "👥" to "players",
+                "➕" to "create",
+                "🔔" to "activity",
+                "⚙️" to "profile"
             )
             val currentRoute = navController
                 .currentBackStackEntryAsState().value?.destination?.route
@@ -93,8 +93,9 @@ fun AppNavigation() {
         composable("profile") {
             ProfileScreen()
         }
+        composable("games") {
+            GamesScreen()
+        }
     }}
-
-
 
 }

@@ -171,7 +171,7 @@ fun LoginScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         if (isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
-                        else Text("Sign In →", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        else Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

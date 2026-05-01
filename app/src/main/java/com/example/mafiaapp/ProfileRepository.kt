@@ -47,6 +47,18 @@ class ProfileRepository
             null
         }
 
+
+    }
+    suspend fun updateUsername(newUsername: String): Boolean
+    {
+        return try {
+            val uid = auth.currentUser?.uid?: return false
+            db.collection("users").document(uid)
+                .update("username", newUsername).await()
+            true
+        }   catch (e: Exception){
+            false
+        }
     }
 
 
