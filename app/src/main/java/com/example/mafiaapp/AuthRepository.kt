@@ -22,7 +22,18 @@ class AuthRepository {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val uid = result.user?.uid ?: ""
             Firebase.firestore.collection("users").document(uid).set(
-                mapOf("username" to username, "email" to email, "isAdmin" to false)
+                mapOf(
+                        "username" to username,
+                        "email" to email,
+                        "isAdmin" to false,
+                        "mmr" to 0,
+                        "wins" to 0,
+                        "losses" to 0,
+                        "games" to 0,
+                        "rank" to "IRON",
+                        "approved" to false,
+                        "createdAt" to com.google.firebase.Timestamp.now()
+                    )
             ).await()
             Result.success(Unit)
         } catch (e: Exception) {

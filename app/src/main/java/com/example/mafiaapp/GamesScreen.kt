@@ -31,6 +31,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +40,7 @@ fun formatDate(timestamp: Long): String{
     val sdf = java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.ENGLISH)
     return sdf.format(java.util.Date(timestamp))
 }
+val LightGreen = Color(0xFF53B957)
 
 @Composable
 fun GamesScreen(){
@@ -104,8 +106,7 @@ fun GamesScreen(){
     }
 }
 @Composable
-fun GameCard(game: Game)
-{
+fun GameCard(game: Game) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -116,8 +117,10 @@ fun GameCard(game: Game)
     {
         Column(modifier = Modifier.padding(16.dp))
         {
-            Row(modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            )
             {
 
                 Text(
@@ -160,25 +163,37 @@ fun GameCard(game: Game)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                 }
-                }
+
 
                 if (game.players.size > 5) {
                     Text("+${game.players.size - 5}", color = Color.Gray, fontSize = 12.sp)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            )
             {
 
-                Text(text = "Season - ${game.season}",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold)
                 Text(
-                    text = if(game.result == "town") "♥ Town Victory" else "♠ Mafia Victory",
-                    color = if(game.result == "town") Color.Red else Color.Black,
-                    fontSize = 14.sp
+                    text = "Season - ${game.season}",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
+                Box(modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(LightGreen)
+                    .padding(horizontal = 12.dp, vertical = 4.dp))
+                {
+                    Text(
+                        text = if (game.result == "town") "♥ Town Victory" else "♠ Mafia Victory",
+                        color = if (game.result == "town") Color.Red else Color.Black,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
+}

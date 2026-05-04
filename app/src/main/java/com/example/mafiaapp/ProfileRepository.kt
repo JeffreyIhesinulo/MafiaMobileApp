@@ -60,6 +60,27 @@ class ProfileRepository
             false
         }
     }
+    suspend fun getUsers(): List<User> {
+        return try {
+            val snapshot = db.collection("users").get().await()
+            snapshot.documents.map { doc ->
+                User(
+                    uid = doc.id,
+                    username = doc.getString("username") ?: "",
+                    email = doc.getString("email") ?: "",
+                    mmr = (doc.getLong("mmr") ?: 0).toInt(),
+                    wins = (doc.getLong("wins") ?: 0).toInt(),
+                    losses = (doc.getLong("losses") ?: 0).toInt(),
+                    games = (doc.getLong("games") ?: 0).toInt(),
+                    rank = doc.getString("rank") ?: "",
+                    isAdmin = doc.getBoolean("isAdmin") ?: false,
+                    approved = doc.getBoolean("approved") ?: false
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
 
 }
