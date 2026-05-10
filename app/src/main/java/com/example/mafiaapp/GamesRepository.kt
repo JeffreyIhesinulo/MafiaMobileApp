@@ -2,6 +2,8 @@ package com.example.composeapp
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -55,5 +57,124 @@ class GamesRepository{
             emptyList()
         }
     }
+    suspend fun createGame(
+        result: String,
+        season: Int,
+        notes: String,
+        players: Map<String, String>,
+        allUsers: List<User>,
+        hostId: String,
+        willUid: String,
+        willGuesses: Int
+    ): Boolean
+    {
+        return try {
+            val gamesCount = db.collection("games").get().await().size()
+            val gameNumber = gamesCount + 1
+            val gameData = hashMapOf(
+                "gameNumber" to gameNumber,
+                "result" to result,
+                "season" to season,
+                "notes" to notes,
+                "date" to com.google.firebase.Timestamp.now(),
+                "createdBy" to Firebase.auth.currentUser?.uid,
+                "players" to players.map{(uid, role) ->
+                    val user = allUsers.find { it.uid == uid}
+                    hashMapOf(
+                        "uid" to uid,
+                        "username" to (user?.username ?: ""),
+                        "mmrChange" to 0,
+                        "role" to role,
+                        "rank" to (user?.rank ?: "")
+                    )
+                }
+            )
+            val gameRef = db.collection("games").add(gameData).await()
+            val gameId = gameRef.id
+            calculateAndUpdateMMR(
+                players = players,
+                result = result,
+                hostId = hostId,
+                willUid = willUid,
+                willGuesses = willGuesses,
+                gameId = gameId
+            )
+
+            true
+        }catch (e: Exception){
+            false
+        }
+
+    }
+    suspend fun calculateAndUpdateMMR(
+        players: Map<String, String>,
+        result: String,
+        hostId: String,
+        willUid: String,
+        willGuesses : Int,
+        gameId : String
+    ){
+        players.forEach { (uid, role) ->
+            if (uid == hostId) {
+
+                db.collection("users").document(uid)
+                    .update("mmr", FieldValue.increment(1L))
+                    .await()
+                return@forEach
+            }
+            var mmrGain = 1
+
+            mmrGain += when{
+                result == "town" && role == "Citizen" -> 5
+                result == "town" && role == "Sheriff" -> 10
+                result == "mafia" && role == "Mafia" -> 6
+                result == "mafia" && role == "Don" -> 10
+                else -> 0
+            }
+            if (uid == willUid) mmrGain += willGuesses
+            val gameDoc = db.collection("games").document(gameId).get().await()
+            val playerList = gameDoc.get("players") as? List<Map<String, Any>> ?: emptyList()
+
+            val updatedPlayers = playerList.map {
+                playerMap ->
+                if (playerMap["uid"] == uid){
+                    playerMap.toMutableMap().apply {
+                        put("mmrChange", mmrGain)
+                    }
+                }else{
+                    playerMap
+                }
+            }
+            db.collection("games").document(gameId)
+                .update("players", updatedPlayers)
+                .await()
+            val isWinner = (result == "town" && (role =="Citizen" || role == "Sheriff")) ||
+                    (result == "mafia" && (role == "Mafia" || role == "Don"))
+
+            val userDoc = db.collection("users").document(uid).get().await()
+            val currentMmr = (userDoc.getLong("mmr") ?: 0).toInt()
+            val newMmr = (currentMmr + mmrGain)
+            val newRank = getRankFromMMR(newMmr)
+            db.collection("users").document(uid).update(
+                mapOf(
+                    "mmr" to FieldValue.increment(mmrGain.toLong()),
+                    "rank" to newRank,
+                    "games" to FieldValue.increment(1L),
+                    "wins" to FieldValue.increment(if (isWinner) 1L else 0L),
+                    "losses" to FieldValue.increment(if (!isWinner) 1L else 0L)
+                )
+            ).await()
+        }
+    }
+    fun getRankFromMMR(mmr: Int): String {
+        return when {
+            mmr >= 200 -> "LEGEND"
+            mmr >= 100 -> "MASTER"
+            mmr >= 50  -> "ELITE"
+            mmr >= 25  -> "VETERAN"
+            else       -> "IRON"
+        }
+    }
+
 
 }
