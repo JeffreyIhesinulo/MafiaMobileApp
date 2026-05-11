@@ -2,6 +2,7 @@ package com.example.composeapp
 
 import android.R
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 fun formatDate(timestamp: Long): String{
     val sdf = java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.ENGLISH)
@@ -43,7 +45,7 @@ fun formatDate(timestamp: Long): String{
 val LightGreen = Color(0xFF53B957)
 
 @Composable
-fun GamesScreen(){
+fun GamesScreen(navController: NavController){
     var games by remember { mutableStateOf<List<Game>> (emptyList())}
     var isLoading by remember { mutableStateOf(true)}
     val repository = remember { GamesRepository() }
@@ -98,7 +100,8 @@ fun GamesScreen(){
 
                 LazyColumn(modifier = Modifier.weight(1f)){
                 items(games) {game ->
-                    GameCard(game)
+                    GameCard(game = game,
+                        onClick = {navController.navigate("game/${game.id}")})
                 }
             }
 
@@ -106,11 +109,12 @@ fun GamesScreen(){
     }
 }
 @Composable
-fun GameCard(game: Game) {
+fun GameCard(game: Game, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable{onClick()},
         colors = CardDefaults.cardColors(containerColor = CardBg),
         shape = RoundedCornerShape(12.dp)
     )

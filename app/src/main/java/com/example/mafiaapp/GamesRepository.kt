@@ -176,5 +176,95 @@ class GamesRepository{
         }
     }
 
+    suspend fun getPlayerMMRHistory(uid : String): List<Pair<Long, Int>>
+    {
+        return try{
+            val oneMonthAgo = System.currentTimeMillis() - (30L * 24 * 60 * 60 *1000)
+            val snapshot = db.collection("games").get().await()
+
+            snapshot.documents.mapNotNull { doc ->
+                val date = doc.getTimestamp("date")?.toDate()?.time ?: 0L
+                if(date < oneMonthAgo) return@mapNotNull null
+
+                val playerList = doc.get("players") as? List<Map<String, Any>> ?: emptyList()
+                val player = playerList.find{ it["uid"] == uid}
+
+                if (player != null){
+                    val mmrChange = (player["mmrChange"] as? Long ?: 0).toInt()
+                    Pair(date, mmrChange)
+                }else null
+            }.sortedBy { it.first }
+        }catch (e: Exception){
+            emptyList()
+        }
+    }
+    suspend fun getPlayerRecentGames(uid: String): List<Game>{
+        return try{
+            val snapshot = db.collection("games")
+                .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(5)
+                .get().await()
+
+            snapshot.documents.mapNotNull { doc ->
+                val playersRaw = doc.get("players") as? List<Map<String, Any>> ?: emptyList()
+                val isParticipant = playersRaw.any{ it["uid"] == uid }
+                if (!isParticipant) return@mapNotNull null
+
+                val playerList = playersRaw.map { playerMap ->
+                    GamePlayer(
+                        uid = playerMap["uid"] as? String ?: "",
+                        username = playerMap["username"] as? String ?: "",
+                        role = playerMap["role"] as? String ?: "",
+                        mmrChange = (playerMap["mmrChange"] as? Long ?: 0).toInt(),
+                        rank = playerMap["rank"] as? String ?: ""
+                    )
+                }
+                Game(
+                    id = doc.id,
+                    gameNumber = (doc.getLong("gameNumber") ?: 0).toInt(),
+                    date = doc.getTimestamp("date")?.toDate()?.time ?: 0L,
+                    result = doc.getString("result") ?: "",
+                    season = (doc.getLong("season") ?: 0).toInt(),
+                    players = playerList
+
+                )
+            }
+        }catch (e: Exception)
+        {
+            emptyList()
+        }
+
+    }
+    suspend fun getGameById(id: String): Game?
+    {
+        return try{
+            val doc = db.collection("games").document(id).get().await()
+            val playerList = doc.get("players") as? List<Map<String, Any>>?: emptyList()
+                Game(
+                    id = doc.id,
+                    gameNumber = (doc.getLong("gameNumber") ?: 0).toInt(),
+                    result = doc.getString("result") ?: "",
+                    season = (doc.getLong("season")?:0).toInt(),
+                    date = doc.getTimestamp("date")?.toDate()?.time ?: 0L,
+                    createdBy = doc.getString("createdBy") ?: "",
+                    players = playerList.map{ playerMap ->
+                        GamePlayer(
+                            uid = playerMap["uid"] as? String ?: "",
+                            username = playerMap["username"] as? String ?: "",
+                            role = playerMap["role"] as? String ?: "",
+                            mmrChange = (playerMap["mmrChange"] as? Long ?: 0).toInt(),
+                            rank = playerMap["rank"] as? String ?: ""
+
+                        )
+                    }
+                )
+
+            }catch (e: Exception){
+                null
+        }
+    }
+
+
+
 
 }

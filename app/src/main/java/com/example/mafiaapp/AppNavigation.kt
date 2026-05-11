@@ -90,13 +90,17 @@ fun AppNavigation() {
             PlayersScreen()
         }
         composable("profile") {
-            ProfileScreen()
-        }
-        composable("games") {
-            GamesScreen()
+            ProfileScreen(navController = navController)
         }
         composable("create") {
             CreateGamesScreen()
+        }
+        composable("game/{gameId}") { backStackEntry ->
+            val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
+            GameDetailScreen(gameId = gameId)
+        }
+        composable("games") {
+            GamesScreen(navController = navController)
         }
     }}
 
