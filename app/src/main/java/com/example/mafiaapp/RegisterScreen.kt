@@ -53,8 +53,14 @@ fun RegisterScreen(
                 errorMessage = ""
                 scope.launch {
                     val result = repository.register(email, password, username)
-                    if (result.isSuccess) onRegisterSuccess()
-                    else errorMessage = result.exceptionOrNull()?.message ?: "Registration failed"
+                    if (result.isSuccess) {
+                        errorMessage = "Check your email to verify your account!"
+                        kotlinx.coroutines.delay(2000)
+                        onRegisterSuccess()
+                    }
+                    else errorMessage = if (result.exceptionOrNull()?.message == "Username already taken")
+                        "Username already taken!"
+                    else "Registration failed"
                     isLoading = false
                 }
             }
@@ -166,7 +172,7 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     if (errorMessage.isNotEmpty()) {
-                        Text(text = errorMessage, color = Color.Red, fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp))
+                        Text(text = errorMessage, color = if (errorMessage.contains("Check your email")) Color.Green else Color.Red, fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp))
                     }
 
                     Button(
@@ -176,7 +182,7 @@ fun RegisterScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         if (isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
-                        else Text("Create Account →", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        else Text("Create Account ->", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -194,7 +200,7 @@ fun RegisterScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text("© 2024 MAFIA RATING TRACKER • PRIVATE COMMUNITY", color = Color.DarkGray, fontSize = 11.sp)
+            Text("© 2026 WEXFORD MAFIA RATING TRACKER • PRIVATE COMMUNITY", color = Color.DarkGray, fontSize = 11.sp)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

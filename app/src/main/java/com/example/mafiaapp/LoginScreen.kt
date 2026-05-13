@@ -1,5 +1,6 @@
 package com.example.composeapp
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -31,11 +33,17 @@ val DarkBackground = Color(0xFF600606)
 val PurpleAccent = Color(0xFF600606)
 val CardBackground = Color(0xFF000000)
 
+
+
 @Composable
+
 fun LoginScreen(
     onLoginClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {}
 ) {
+    var showForgotDialog by remember {mutableStateOf(false)}
+    var forgotEmail by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -51,10 +59,46 @@ fun LoginScreen(
         scope.launch {
             val result = repository.login(email, password)
             if (result.isSuccess) onLoginClick()
-            else errorMessage = "Invalid email or password"
+            else errorMessage = if(result.exceptionOrNull()?.message == "Email not verified")
+                "Please verify your email first!"
+                else
+                "Invalid email or password"
             isLoading = false
         }
 
+    }
+    if(showForgotDialog){
+        AlertDialog(
+            onDismissRequest = {showForgotDialog = false},
+            title = { Text("Reset Pawword")},
+            text = {
+                OutlinedTextField(
+                    value = forgotEmail,
+                    onValueChange = { forgotEmail = it},
+                    label = {Text("Email")}
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    scope.launch {
+                        val success = repository.resetPassword(forgotEmail)
+                        if(success)
+                        {
+                            Toast.makeText(context, "Check your email!", Toast.LENGTH_SHORT).show()
+                            showForgotDialog = false
+                        }
+                        else{
+                            Toast.makeText(context, "Error!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }) {Text("Send") }
+            },
+            dismissButton = {
+                TextButton(onClick = {showForgotDialog = false}) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Box(
@@ -127,7 +171,10 @@ fun LoginScreen(
 
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Password", color = Color.White, fontSize = 14.sp)
-                        Text("Forgot Password?", color = Color.White, fontSize = 14.sp)
+                        Text("Forgot Password?",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            modifier = Modifier.clickable{showForgotDialog = true})
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -189,7 +236,7 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            Text("© 2024 MAFIA RATING TRACKER • PRIVATE COMMUNITY", color = Color.DarkGray, fontSize = 11.sp)
+            Text("© 2026 WEXFORD MAFIA RATING TRACKER • PRIVATE COMMUNITY", color = Color.DarkGray, fontSize = 11.sp)
 
             Spacer(modifier = Modifier.height(16.dp))
         }

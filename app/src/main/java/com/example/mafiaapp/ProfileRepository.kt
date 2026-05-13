@@ -55,8 +55,12 @@ class ProfileRepository
     {
         return try {
             val uid = auth.currentUser?.uid?: return false
-            db.collection("users").document(uid)
-                .update("username", newUsername).await()
+            val check = db.collection("users").whereEqualTo("username", newUsername).get().await()
+
+            if (!check.isEmpty) return false
+
+
+            db.collection("users").document(uid).update("username", newUsername).await()
             true
         }   catch (e: Exception){
             false

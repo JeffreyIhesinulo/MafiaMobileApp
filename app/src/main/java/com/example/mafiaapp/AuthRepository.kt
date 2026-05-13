@@ -10,7 +10,13 @@ class AuthRepository {
 
     suspend fun login(email: String, password: String): Result<Unit> {
         return try {
-            auth.signInWithEmailAndPassword(email, password).await()
+
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            if (result.user?.isEmailVerified == false)
+            {
+                auth.signOut()
+                return Result.failure(Exception("Email not verified"))
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -19,8 +25,17 @@ class AuthRepository {
 
     suspend fun register(email: String, password: String, username: String): Result<Unit> {
         return try {
+             val usernameCheck = Firebase.firestore.collection("users")
+                 .whereEqualTo("username", username)
+                 .get().await()
+
+            if (!usernameCheck.isEmpty)
+            {
+                return Result.failure(Exception("Username already taken"))
+            }
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val uid = result.user?.uid ?: ""
+            result.user?.sendEmailVerification()?.await()
             Firebase.firestore.collection("users").document(uid).set(
                 mapOf(
                         "username" to username,
@@ -47,5 +62,15 @@ class AuthRepository {
 
     fun isLoggedIn(): Boolean {
         return auth.currentUser != null
+    }
+    suspend fun resetPassword(email: String): Boolean{
+        return try{
+            Firebase.auth.sendPasswordResetEmail(email).await()
+            true
+        }
+        catch (e: Exception)
+        {
+            false
+        }
     }
 }
