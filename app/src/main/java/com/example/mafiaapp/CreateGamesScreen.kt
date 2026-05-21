@@ -293,6 +293,10 @@ fun CreateGamesScreen() {
                             Toast.makeText(context, "Select a host!", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
+                        hasWill && willUid.isEmpty() -> {
+                            Toast.makeText(context, "Select player for Last Will!", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         selectedPlayers.containsKey(hostId) -> {
                             Toast.makeText(context, "Host cannot be a player!", Toast.LENGTH_SHORT).show()
                             return@Button

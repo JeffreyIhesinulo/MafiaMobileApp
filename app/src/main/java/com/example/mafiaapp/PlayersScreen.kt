@@ -1,6 +1,7 @@
 package com.example.composeapp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 val NavBackground = Color(0xFF12101A)
 val CardBg = Color(0xFF1E1B2E)
@@ -24,6 +26,7 @@ val RedColor = Color(0xFFE53935)
 val GoldColor = Color(0xFFFFD700)
 
 data class Player(
+    val uid: String = "",
     val username: String,
     val rank: String,
     val rankColor: Color,
@@ -45,7 +48,8 @@ fun getRankColor(rank: String): Color {
 }
 
 @Composable
-fun PlayersScreen() {
+fun PlayersScreen(navController: NavController) {
+
     var searchText by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All Players") }
     var players by remember { mutableStateOf<List<Player>>(emptyList()) }
@@ -128,15 +132,19 @@ fun PlayersScreen() {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(filteredPlayers) { player -> PlayerCard(player = player) }
-            }
+                items(filteredPlayers) { player ->
+                    PlayerCard(
+                        player = player,
+                        onClick = { navController.navigate("player/${player.uid}") }
+                    )
+                }            }
         }
     }
 }
 
 @Composable
-fun PlayerCard(player: Player) {
-    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = CardBg), shape = RoundedCornerShape(12.dp)) {
+fun PlayerCard(player: Player, onClick: () -> Unit = {}) {
+    Card(modifier = Modifier.fillMaxWidth().clickable{ onClick()}, colors = CardDefaults.cardColors(containerColor = CardBg), shape = RoundedCornerShape(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(48.dp).background(PurpleMain, CircleShape), contentAlignment = Alignment.Center) {
                 Text(player.username.first().toString(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)

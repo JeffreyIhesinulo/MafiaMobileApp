@@ -17,6 +17,14 @@ class AuthRepository {
                 auth.signOut()
                 return Result.failure(Exception("Email not verified"))
             }
+            val userDoc = Firebase.firestore.collection("users")
+                .document(result.user?.uid ?: "")
+                .get().await()
+
+            if (userDoc.getBoolean("approved") == false) {
+                auth.signOut()
+                return Result.failure(Exception("Account not approved"))
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

@@ -1,6 +1,7 @@
 package com.example.composeapp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -16,9 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @Composable
-fun GameDetailScreen(gameId: String) {
+fun GameDetailScreen(gameId: String, navController: NavController) {
     var game by remember { mutableStateOf<Game?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     val repository = remember { GamesRepository() }
@@ -114,7 +116,8 @@ fun GameDetailScreen(gameId: String) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
+                                .padding(vertical = 8.dp)
+                                .clickable{ navController.navigate("player/${player.uid}")},
                             verticalAlignment = Alignment.CenterVertically
                         ) {
 

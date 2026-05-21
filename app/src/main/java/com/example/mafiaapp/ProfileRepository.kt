@@ -88,6 +88,26 @@ class ProfileRepository
         }
 
     }
+    suspend fun getUserById(uid: String): User? {
+        return try {
+            val doc = db.collection("users").document(uid).get().await()
+            User(
+                uid = doc.id,
+                username = doc.getString("username") ?: "",
+                email = doc.getString("email") ?: "",
+                mmr = (doc.getLong("mmr") ?: 0).toInt(),
+                wins = (doc.getLong("wins") ?: 0).toInt(),
+                losses = (doc.getLong("losses") ?: 0).toInt(),
+                games = (doc.getLong("games") ?: 0).toInt(),
+                rank = doc.getString("rank") ?: "",
+                isAdmin = doc.getBoolean("isAdmin") ?: false,
+                approved = doc.getBoolean("approved") ?: false
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 
 
 }

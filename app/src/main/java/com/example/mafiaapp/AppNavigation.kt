@@ -87,7 +87,7 @@ fun AppNavigation() {
             )
         }
         composable("players") {
-            PlayersScreen()
+            PlayersScreen(navController = navController)
         }
         composable("profile") {
             ProfileScreen(navController = navController)
@@ -97,10 +97,20 @@ fun AppNavigation() {
         }
         composable("game/{gameId}") { backStackEntry ->
             val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
-            GameDetailScreen(gameId = gameId)
+            GameDetailScreen(gameId = gameId, navController = navController)
         }
         composable("games") {
             GamesScreen(navController = navController)
+        }
+        composable("player/{uid}") { backStackEntry ->
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            PlayerProfileScreen(uid = uid, navController = navController)
+        }
+        composable("activity") {
+            ActivityScreen(navController = navController)
+        }
+        composable("pending") {
+            PendingApprovalsScreen(navController = navController)
         }
     }}
 

@@ -99,6 +99,16 @@ class GamesRepository{
                 willGuesses = willGuesses,
                 gameId = gameId
             )
+            db.collection("activity").add(
+                hashMapOf(
+                    "type" to "game",
+                    "title" to "New Game Recorded",
+                    "body" to "Game #GM-$gameNumber has been processed. ${if (result == "town") "Town" else "Mafia"} Victory!",
+                    "createdAt" to com.google.firebase.Timestamp.now(),
+                    "createdBy" to Firebase.auth.currentUser?.uid,
+                    "gameId" to gameId
+                )
+            ).await()
 
             true
         }catch (e: Exception){

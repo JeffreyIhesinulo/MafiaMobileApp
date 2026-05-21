@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.example.composeapp.R
 
-val DarkBackground = Color(0xFF600606)
+val DarkBackground = Color(0xFF12101A)
 val PurpleAccent = Color(0xFF600606)
-val CardBackground = Color(0xFF000000)
+val CardBackground = Color(0xFF1E1B2E)
 
 
 
@@ -59,10 +59,11 @@ fun LoginScreen(
         scope.launch {
             val result = repository.login(email, password)
             if (result.isSuccess) onLoginClick()
-            else errorMessage = if(result.exceptionOrNull()?.message == "Email not verified")
-                "Please verify your email first!"
-                else
-                "Invalid email or password"
+            else errorMessage = when (result.exceptionOrNull()?.message) {
+                "Email not verified" -> "Please verify your email first!"
+                "Account not approved" -> "Your account is pending approval!"
+                else -> "Invalid email or password"
+            }
             isLoading = false
         }
 
@@ -214,7 +215,7 @@ fun LoginScreen(
                     Button(
                         onClick = { performLogin() },
                         modifier = Modifier.fillMaxWidth().height(52.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000)),
+                        colors = ButtonDefaults.buttonColors(containerColor = PurpleMain),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         if (isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
