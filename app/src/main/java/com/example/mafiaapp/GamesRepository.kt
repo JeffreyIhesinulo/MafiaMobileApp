@@ -125,13 +125,7 @@ class GamesRepository{
         gameId : String
     ){
         players.forEach { (uid, role) ->
-            if (uid == hostId) {
 
-                db.collection("users").document(uid)
-                    .update("mmr", FieldValue.increment(1L))
-                    .await()
-                return@forEach
-            }
             var mmrGain = 1
 
             mmrGain += when{
@@ -174,6 +168,11 @@ class GamesRepository{
                     "losses" to FieldValue.increment(if (!isWinner) 1L else 0L)
                 )
             ).await()
+        }
+        if (hostId.isNotEmpty()) {
+            db.collection("users").document(hostId)
+                .update("mmr", FieldValue.increment(1L))
+                .await()
         }
     }
     fun getRankFromMMR(mmr: Int): String {

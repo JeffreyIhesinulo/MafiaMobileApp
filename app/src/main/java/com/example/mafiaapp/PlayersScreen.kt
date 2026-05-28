@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -152,7 +153,15 @@ fun PlayerCard(player: Player, onClick: () -> Unit = {}) {
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(player.username, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        player.username,
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
                     Spacer(modifier = Modifier.width(6.dp))
                     Box(modifier = Modifier.background(player.rankColor.copy(alpha = 0.2f), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
                         Text(player.rank, color = player.rankColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
@@ -160,6 +169,7 @@ fun PlayerCard(player: Player, onClick: () -> Unit = {}) {
                 }
                 Text("⚡ ${player.games} games", color = Color.Gray, fontSize = 12.sp)
             }
+            Spacer(modifier = Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End) {
                 Text("${player.mmr} MMR", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Text(if (player.mmrChange > 0) "+${player.mmrChange}" else "${player.mmrChange}", color = if (player.mmrChange > 0) GreenColor else RedColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
