@@ -38,7 +38,6 @@ class AuthRepository {
         val nameKey = username.lowercase()
 
         return try {
-            // 1. Сначала аккаунт: правила требуют request.auth != null
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: return Result.failure(Exception("Registration failed"))
 
