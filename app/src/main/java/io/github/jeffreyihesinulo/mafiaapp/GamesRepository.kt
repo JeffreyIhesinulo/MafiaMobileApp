@@ -1,4 +1,4 @@
-package com.jeffreyihesinulo.composeapp
+package io.github.jeffreyihesinulo.mafiaapp
 
 import android.os.Build
 import androidx.annotation.RequiresApi

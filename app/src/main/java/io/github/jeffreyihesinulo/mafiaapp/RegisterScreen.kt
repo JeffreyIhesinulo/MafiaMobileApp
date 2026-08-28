@@ -1,4 +1,4 @@
-package com.jeffreyihesinulo.composeapp
+package io.github.jeffreyihesinulo.mafiaapp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

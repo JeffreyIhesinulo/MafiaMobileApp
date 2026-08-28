@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.jeffreyihesinulo.composeapp"
+    namespace = "io.github.jeffreyihesinulo.mafiaapp"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.composeapp"
+        applicationId = "io.github.jeffreyihesinulo.mafiaapp"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

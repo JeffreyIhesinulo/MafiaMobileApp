@@ -1,4 +1,4 @@
-package com.jeffreyihesinulo.composeapp
+package io.github.jeffreyihesinulo.mafiaapp
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth

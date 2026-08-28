@@ -1,4 +1,4 @@
-package com.jeffreyihesinulo.composeapp
+package io.github.jeffreyihesinulo.mafiaapp
 
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase

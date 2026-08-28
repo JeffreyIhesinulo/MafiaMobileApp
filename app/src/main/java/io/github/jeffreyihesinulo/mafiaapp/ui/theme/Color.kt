@@ -1,4 +1,4 @@
-package com.jeffreyihesinulo.mafiaapp.ui.theme
+package io.github.jeffreyihesinulo.mafiaapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
