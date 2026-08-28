@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MafiaApp">
         <activity
-            android:name="com.example.composeapp.MainActivity"
+            android:name="com.jeffreyihesinulo.composeapp.MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:label="@string/app_name"

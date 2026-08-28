@@ -1,4 +1,4 @@
-package com.example.composeapp
+package com.jeffreyihesinulo.composeapp
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -27,7 +27,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import com.example.composeapp.R
 
 val DarkBackground = Color(0xFF12101A)
 val PurpleAccent = Color(0xFF600606)

@@ -1,4 +1,4 @@
-package com.example.composeapp
+package com.jeffreyihesinulo.composeapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,7 +34,8 @@ data class Player(
     val mmr: Int,
     val mmrChange: Int,
     val games: Int,
-    val isAdmin: Boolean = false
+    val isAdmin: Boolean = false,
+    val lastGameAt: Long = 0L
 )
 
 fun getRankColor(rank: String): Color {
@@ -103,6 +104,7 @@ fun PlayersScreen(navController: NavController) {
                 val isSelected = filter == selectedFilter
                 Box(
                     modifier = Modifier
+                        .clickable{selectedFilter = filter}
                         .background(if (isSelected) PurpleMain else CardBg, RoundedCornerShape(20.dp))
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
@@ -118,7 +120,7 @@ fun PlayersScreen(navController: NavController) {
                 Text("CLUB ROSTER", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 Text("Total ${filteredPlayers.size} Registered Members", color = Color.Gray, fontSize = 11.sp)
             }
-            Text("Sorted by MMR", color = Color.Gray, fontSize = 11.sp)
+
         }
 
         Spacer(modifier = Modifier.height(8.dp))

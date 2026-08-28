@@ -1,4 +1,4 @@
-package com.example.composeapp
+package com.jeffreyihesinulo.composeapp
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -7,7 +7,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
-import kotlin.collections.get
 
 data class Game(
     val id: String = "",
@@ -165,7 +164,8 @@ class GamesRepository{
                     "rank" to newRank,
                     "games" to FieldValue.increment(1L),
                     "wins" to FieldValue.increment(if (isWinner) 1L else 0L),
-                    "losses" to FieldValue.increment(if (!isWinner) 1L else 0L)
+                    "losses" to FieldValue.increment(if (!isWinner) 1L else 0L),
+                    "lastGameAt" to com.google.firebase.Timestamp.now()
                 )
             ).await()
         }

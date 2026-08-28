@@ -1,4 +1,4 @@
-package com.example.composeapp
+package com.jeffreyihesinulo.composeapp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

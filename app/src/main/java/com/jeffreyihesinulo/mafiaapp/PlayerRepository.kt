@@ -1,4 +1,4 @@
-package com.example.composeapp
+package com.jeffreyihesinulo.composeapp
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -13,6 +13,7 @@ class PlayerRepository {
     suspend fun getPlayers(): List<Player> {
         return try {
             val snapshot = db.collection("users").get().await()
+            val lastGameMap = getLastGameTimestamps()
             snapshot.documents.map { doc ->
                 Player(
                     uid = doc.id,
@@ -22,7 +23,8 @@ class PlayerRepository {
                     mmr = (doc.getLong("mmr") ?: 0).toInt(),
                     mmrChange = (doc.getLong("mmrChange") ?: 0).toInt(),
                     games = (doc.getLong("games") ?: 0).toInt(),
-                    isAdmin = doc.getBoolean("isAdmin") ?: false
+                    isAdmin = doc.getBoolean("isAdmin") ?: false,
+                    lastGameAt = lastGameMap[doc.id] ?: 0L
                 )
             }
         } catch (e: Exception) {
@@ -69,6 +71,20 @@ class PlayerRepository {
         } catch (e: Exception) {
             false
         }
+    }
+
+    private suspend fun getLastGameTimestamps(): Map<String, Long> {
+        val snapshot = db.collection("games").get().await()
+        val map = mutableMapOf<String, Long>()
+        snapshot.documents.forEach { doc ->
+            val date = doc.getTimestamp("date")?.toDate()?.time ?: 0L
+            val playersList = doc.get("players") as? List<Map<String, Any>> ?: emptyList()
+            playersList.forEach { playerMap ->
+                val uid = playerMap["uid"] as? String ?: return@forEach
+                if (date > (map[uid] ?: 0L)) map[uid] = date
+            }
+        }
+        return map
     }
 
 

@@ -1,4 +1,4 @@
-package com.example.mafiaapp.ui.theme
+package com.jeffreyihesinulo.mafiaapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

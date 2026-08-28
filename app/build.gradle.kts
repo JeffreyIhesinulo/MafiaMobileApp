@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.composeapp"
+    namespace = "com.jeffreyihesinulo.composeapp"
     compileSdk = 36
 
     defaultConfig {
