@@ -57,7 +57,15 @@ class PlayerRepository {
     }
     suspend fun rejectUser(uid: String): Boolean {
         return try {
+            val doc = db.collection("users").document(uid).get().await()
+            val username = doc.getString("username")
+
             db.collection("users").document(uid).delete().await()
+
+            // снимаем замок, иначе ник останется занят удалённым игроком
+            if (username != null) {
+                db.collection("usernames").document(username.lowercase()).delete().await()
+            }
             true
         } catch (e: Exception) {
             false

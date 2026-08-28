@@ -49,18 +49,35 @@ class ProfileRepository
 
 
     }
-    suspend fun updateUsername(newUsername: String): Boolean
-    {
+    suspend fun updateUsername(newUsername: String): Boolean {
         return try {
-            val uid = auth.currentUser?.uid?: return false
-            val check = db.collection("users").whereEqualTo("username", newUsername).get().await()
+            val uid = auth.currentUser?.uid ?: return false
+            val newKey = newUsername.lowercase()
 
-            if (!check.isEmpty) return false
+            val oldUsername = db.collection("users").document(uid).get().await()
+                .getString("username") ?: return false
+            val oldKey = oldUsername.lowercase()
+            if (oldKey == newKey) return true
 
 
-            db.collection("users").document(uid).update("username", newUsername).await()
+            try {
+                db.collection("usernames").document(newKey)
+                    .set(mapOf("uid" to uid)).await()
+            } catch (e: Exception) {
+                return false
+            }
+
+            try {
+                db.collection("users").document(uid)
+                    .update("username", newUsername).await()
+            } catch (e: Exception) {
+                db.collection("usernames").document(newKey).delete().await()
+                return false
+            }
+
+            db.collection("usernames").document(oldKey).delete().await()
             true
-        }   catch (e: Exception){
+        } catch (e: Exception) {
             false
         }
     }

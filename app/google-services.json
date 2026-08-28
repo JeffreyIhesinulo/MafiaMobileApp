@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "458614595851",
+    "project_id": "mafiaapp-819fd",
+    "storage_bucket": "mafiaapp-819fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:458614595851:android:f76695eb11e71c2284c20e",
+        "android_client_info": {
+          "package_name": "com.example.composeapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjPRyZpL2KTU1qZJdr6CGbv6bqRLgwWlk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:458614595851:android:b20143fb22cff4ed84c20e",
+        "android_client_info": {
+          "package_name": "io.github.jeffreyihesinulo.mafiaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjPRyZpL2KTU1qZJdr6CGbv6bqRLgwWlk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
